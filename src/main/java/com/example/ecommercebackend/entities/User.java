@@ -19,6 +19,15 @@ public class User implements UserDetails {
 
     @Column(nullable = false)
     private String nom;
+    @Column(nullable = true)
+    private String prenom;
+
+    @Column(nullable = true)
+    private String adresse;
+
+    @Column(nullable = true)
+    private String telephone;
+
 
     @Column(nullable = false, unique = true)
     private String email;
@@ -44,6 +53,30 @@ public class User implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.name()));
+    }
+
+    public String getPrenom() {
+        return prenom;
+    }
+
+    public void setPrenom(String prenom) {
+        this.prenom = prenom;
+    }
+
+    public String getAdresse() {
+        return adresse;
+    }
+
+    public void setAdresse(String adresse) {
+        this.adresse = adresse;
+    }
+
+    public String getTelephone() {
+        return telephone;
+    }
+
+    public void setTelephone(String telephone) {
+        this.telephone = telephone;
     }
 
     @Override

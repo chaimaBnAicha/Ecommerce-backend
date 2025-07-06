@@ -82,10 +82,14 @@ public class PanierController {
 
 
     @PostMapping("/{panierId}/ajouter/{produitId}")
-    public ResponseEntity<?> ajouterProduit(@PathVariable Long panierId, @PathVariable Long produitId) {
+    public ResponseEntity<?> ajouterProduit(
+            @PathVariable Long panierId,
+            @PathVariable Long produitId,
+            @RequestParam(defaultValue = "1") int quantity) {
+
         try {
-            Panier panier = panierService.ajouterProduit(panierId, produitId);
-            PanierDTO dto = new PanierDTO(panier);
+            Panier panier = panierService.ajouterProduit(panierId, produitId, quantity);
+            PanierDTO dto = convertToDTO(panier);
             return ResponseEntity.ok(dto);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Erreur ajout produit: " + e.getMessage());

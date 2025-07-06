@@ -68,7 +68,9 @@ public class PanierServiceImpl implements PanierService {
     }
 
 
-    public Panier ajouterProduit(Long panierId, Long produitId) {
+
+
+    public Panier ajouterProduit(Long panierId, Long produitId,Integer quantity) {
         Panier panier = panierRepository.findById(panierId)
                 .orElseThrow(() -> new RuntimeException("Panier introuvable"));
 

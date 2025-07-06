@@ -18,6 +18,8 @@ public abstract class Produit {
 
     private String nom;
     private String description;
+    @Column(nullable = false)
+    private int quantity = 1;
 
     @ElementCollection
     @CollectionTable(name = "produit_image_urls", joinColumns = @JoinColumn(name = "produit_id"))
@@ -34,6 +36,14 @@ public abstract class Produit {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
     public String getNom() {

@@ -10,7 +10,7 @@ public interface PanierService {
 
     Panier getPanierByUtilisateur(Long utilisateurId);
 
-    Panier ajouterProduit(Long panierId, Long produitId);
+    Panier ajouterProduit(Long panierId, Long produitId, Integer quantity);
 
     Panier retirerProduit(Long panierId, Long produitId);
 

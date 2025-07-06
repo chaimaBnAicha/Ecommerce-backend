@@ -1,6 +1,7 @@
 package com.example.ecommercebackend.DTO;
 
 import com.example.ecommercebackend.entities.Panier;
+import com.example.ecommercebackend.entities.ProduitAvecQuantiteDTO;
 
 import java.util.List;
 
@@ -8,6 +9,8 @@ public class PanierDTO {
     private Long id;
     private List<ProduitDTO> produits;
     private Long utilisateurId;
+
+    private List<ProduitAvecQuantiteDTO> produitAvecQuantiteDTOS;
 
     public Long getUtilisateurId() {
         return utilisateurId;

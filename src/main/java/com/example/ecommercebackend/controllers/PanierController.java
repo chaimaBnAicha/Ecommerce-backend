@@ -21,6 +21,8 @@ public class PanierController {
 
     @Autowired
     private PanierService panierService;
+    @Autowired
+    private  PanierRepository panierRepository;
     private PanierDTO convertToDTO(Panier panier) {
 
         List<ProduitDTO> produits = panier.getProduits().stream().map(produit -> {
@@ -92,13 +94,17 @@ public class PanierController {
 
     @DeleteMapping("/{panierId}/retirer/{produitId}")
     public ResponseEntity<?> retirerProduit(@PathVariable Long panierId, @PathVariable Long produitId) {
-        try {
-            Panier panier = panierService.retirerProduit(panierId, produitId);
-            return ResponseEntity.ok(panier);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Erreur retrait produit: " + e.getMessage());
-        }
+        Panier panier = panierRepository.findById(panierId).orElseThrow();
+
+        // Ne supprime que la relation
+        panier.getProduits().removeIf(p -> p.getId().equals(produitId));
+        panierRepository.save(panier);
+
+        PanierDTO dto = convertToDTO(panier); // Conversion en DTO propre
+        return ResponseEntity.ok(dto);
     }
+
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> supprimerPanier(@PathVariable Long id) {

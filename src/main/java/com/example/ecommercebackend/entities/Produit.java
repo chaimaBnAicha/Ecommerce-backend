@@ -1,7 +1,4 @@
 package com.example.ecommercebackend.entities;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Enumerated;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -9,14 +6,12 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "type_produit", discriminatorType = DiscriminatorType.STRING)
 @Data
-
-
 public abstract class Produit {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,32 +19,10 @@ public abstract class Produit {
     private String nom;
     private String description;
 
-    @Lob  // indique que c'est un type large (TEXT/LONGTEXT selon base)
     @ElementCollection
+    @CollectionTable(name = "produit_image_urls", joinColumns = @JoinColumn(name = "produit_id"))
+    @Column(name = "image_urls")
     private List<String> imageUrls = new ArrayList<>();
-
-    public List<String> getImageUrls() {
-        return imageUrls;
-    }
-
-    public void setImageUrls(List<String> imageUrls) {
-        this.imageUrls = imageUrls;
-    }
-
-
-    public Panier getPanier() {
-        return panier;
-    }
-
-    public void setPanier(Panier panier) {
-        this.panier = panier;
-    }
-
-    @ManyToOne
-    @JoinColumn(name = "panier_id")  // ou le nom correct de ta colonne FK
-    @JsonBackReference
-    private Panier panier;
-
 
     @ManyToOne
     @JoinColumn(name = "vendeur_id")
@@ -79,6 +52,14 @@ public abstract class Produit {
         this.description = description;
     }
 
+    public List<String> getImageUrls() {
+        return imageUrls;
+    }
+
+    public void setImageUrls(List<String> imageUrls) {
+        this.imageUrls = imageUrls;
+    }
+
     public User getVendeur() {
         return vendeur;
     }
@@ -86,6 +67,4 @@ public abstract class Produit {
     public void setVendeur(User vendeur) {
         this.vendeur = vendeur;
     }
-
-
 }

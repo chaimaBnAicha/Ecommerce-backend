@@ -75,12 +75,13 @@ public class PanierServiceImpl implements PanierService {
         Produit produit = produitRepository.findById(produitId)
                 .orElseThrow(() -> new RuntimeException("Produit introuvable"));
 
-        produit.setPanier(panier);  // Lien côté Produit
-        panier.getProduits().add(produit);
+        if (!panier.getProduits().contains(produit)) {
+            panier.getProduits().add(produit);
+        }
 
-        produitRepository.save(produit);  // Important : save le produit aussi
-        return panierRepository.save(panier);
+        return panierRepository.save(panier);  // Hibernate gère la table intermédiaire
     }
+
 
 
     public Panier retirerProduit(Long panierId, Long produitId) {

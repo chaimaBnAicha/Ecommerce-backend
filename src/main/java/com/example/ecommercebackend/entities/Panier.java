@@ -1,15 +1,12 @@
 package com.example.ecommercebackend.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Panier {
 
     @Id
@@ -18,8 +15,16 @@ public class Panier {
 
     @OneToOne
     @JoinColumn(name = "utilisateur_id", unique = true)
-    @JsonIgnore // Empêche la sérialisation de l'utilisateur
+    @JsonIgnore
     private User utilisateur;
+
+    @ManyToMany
+    @JoinTable(
+            name = "panier_produits",
+            joinColumns = @JoinColumn(name = "panier_id"),
+            inverseJoinColumns = @JoinColumn(name = "produit_id")
+    )
+    private List<Produit> produits = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -44,11 +49,4 @@ public class Panier {
     public void setProduits(List<Produit> produits) {
         this.produits = produits;
     }
-
-    @OneToMany(mappedBy = "panier", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    private List<Produit> produits = new ArrayList<>();
-
-
-    // ... getters et setters
 }

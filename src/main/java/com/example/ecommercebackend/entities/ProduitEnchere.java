@@ -1,9 +1,6 @@
 package com.example.ecommercebackend.entities;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -23,6 +20,13 @@ public class ProduitEnchere extends Produit {
     @OneToMany(mappedBy = "produit", cascade = CascadeType.ALL)
     private List<Mise> mises;
 
+    public User getClientGagnant() {
+        return clientGagnant;
+    }
+
+    public void setClientGagnant(User clientGagnant) {
+        this.clientGagnant = clientGagnant;
+    }
 
     public LocalDateTime getDateDebut() {
         return dateDebut;
@@ -63,6 +67,10 @@ public class ProduitEnchere extends Produit {
     public void setPrixActuel(double prixActuel) {
         this.prixActuel = prixActuel;
     }
+    @ManyToOne
+    @JoinColumn(name = "gagnant_id")
+    private User clientGagnant;
+
 
 
 }

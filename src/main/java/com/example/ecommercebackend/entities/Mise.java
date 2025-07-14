@@ -15,7 +15,7 @@ public class Mise {
 
     private double montant;
     private Date date;
-
+    private Boolean anonyme;
     @ManyToOne
     @JoinColumn(name = "client_id")
     private User client;
@@ -23,6 +23,24 @@ public class Mise {
     @ManyToOne
     @JoinColumn(name = "produit_id")
     private ProduitEnchere produit;
+
+    public Boolean getAnonyme() {
+        return anonyme;
+    }
+
+    public void setAnonyme(Boolean anonyme) {
+        this.anonyme = anonyme;
+    }
+    @Column(name = "email_visiteur")
+    private String emailVisiteur;
+
+    public String getEmailVisiteur() {
+        return emailVisiteur;
+    }
+
+    public void setEmailVisiteur(String emailVisiteur) {
+        this.emailVisiteur = emailVisiteur;
+    }
 
     public double getMontant() {
         return montant;

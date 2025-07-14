@@ -1,5 +1,6 @@
 package com.example.ecommercebackend.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -47,6 +48,8 @@ public class User implements UserDetails {
     private Panier panier;
 
     @OneToMany(mappedBy = "utilisateur")
+    @JsonIgnore
+
     private List<Commande> commandes;
 
     // Implémentation UserDetails

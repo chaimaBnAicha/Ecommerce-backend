@@ -112,9 +112,11 @@ public class ProduitController {
                     } else if (p instanceof ProduitEnchere pe) {
                         dto.setTypeProduit(TypeProduit.ENCHERE);
                         dto.setPrixDepart(pe.getPrixDepart());
+                        dto.setPrixFixe(pe.getPrixActuel()); // Affiche le prix actuel comme "prix"
                         dto.setDateDebut(pe.getDateDebut());
                         dto.setDateFin(pe.getDateFin());
-                    }
+
+                }
 
                     return dto;
                 })

@@ -117,30 +117,31 @@ public class MiseServiceImpl implements MiseService {
         if (mises.isEmpty()) return;
 
         Mise gagnante = mises.get(0); // plus grande mise
-
-        // Mettre à jour le produit
         produit.setClientGagnant(gagnante.getClient());
         produitRepository.save(produit);
 
-        // Envoyer email au gagnant
+        // Génère le lien vers Angular
+        String lienPaiement = "http://localhost:4200/paiement/" + produitId;
+
+        String message = "🎉 Félicitations ! Vous avez remporté le produit : " + produit.getNom() +
+                " avec une mise de " + gagnante.getMontant() + " DT.\n" +
+                "👉 Cliquez ici pour finaliser votre achat : " + lienPaiement;
+
         if (gagnante.getClient() != null) {
-            // Client enregistré
             emailService.envoyerEmailConfirmation(
                     gagnante.getClient().getEmail(),
-                    "Félicitations ! Vous avez gagné",
-                    "Vous avez remporté le produit : " + produit.getNom()
-                            + " avec une mise de " + gagnante.getMontant() + " DT"
+                    "Félicitations ! Vous avez gagné l'enchère",
+                    message
             );
         } else if (gagnante.getEmailVisiteur() != null) {
-            // Visiteur
             emailService.envoyerEmailConfirmation(
                     gagnante.getEmailVisiteur(),
-                    "Félicitations ! Vous avez gagné",
-                    "Vous avez remporté le produit : " + produit.getNom()
-                            + " avec une mise de " + gagnante.getMontant() + " DT"
+                    "Félicitations ! Vous avez gagné l'enchère",
+                    message
             );
         }
     }
+
     @Override
     public List<MiseDTO> getDernieresMisess(Long produitId) {
         ProduitEnchere produit = produitEnchereRepository.findById(produitId)

@@ -23,7 +23,7 @@ public abstract class Produit {
 
     @ElementCollection
     @CollectionTable(name = "produit_image_urls", joinColumns = @JoinColumn(name = "produit_id"))
-    @Column(name = "image_urls")
+    @Column(name = "image_urls", columnDefinition = "TEXT")
     private List<String> imageUrls = new ArrayList<>();
 
     @ManyToOne

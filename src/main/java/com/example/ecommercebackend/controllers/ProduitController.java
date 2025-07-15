@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:4200")
 
@@ -59,6 +58,22 @@ public class ProduitController {
             return ResponseEntity.internalServerError().body("Erreur serveur");
         }
     }
+    @PostMapping("/vip/{produitId}/inscription")
+    public ResponseEntity<?> inscrireClientVIP(@PathVariable Long produitId, @RequestParam Long clientId) {
+        ProduitEnchereVIP produit = (ProduitEnchereVIP) produitRepository.findById(produitId)
+                .orElseThrow(() -> new RuntimeException("Produit introuvable"));
+
+        User client = userRepository.findById(clientId)
+                .orElseThrow(() -> new RuntimeException("Client introuvable"));
+
+        if (!produit.getClientsInscrits().contains(client)) {
+            produit.ajouterClientInscrit(client);
+            produitRepository.save(produit);
+            return ResponseEntity.ok("Inscription réussie");
+        } else {
+            return ResponseEntity.badRequest().body("Déjà inscrit");
+        }
+    }
 
 
     @GetMapping
@@ -67,14 +82,14 @@ public class ProduitController {
             ProduitDTO dto = new ProduitDTO();
             dto.setNom(p.getNom());
             dto.setDescription(p.getDescription());
-            dto.setImageUrls(p.getImageUrls()); // Modifier ici pour utiliser getImageUrls()
+            dto.setImageUrls(p.getImageUrls());
 
             if (p instanceof ProduitClassique pc) {
-                dto.setId(p.getId());  // Manquant chez toi
+                dto.setId(p.getId());  // ✅ bien ajouté
                 dto.setTypeProduit(TypeProduit.CLASSIQUE);
                 dto.setPrixFixe(pc.getPrixFixe());
             } else if (p instanceof ProduitEnchere pe) {
-                dto.setId(p.getId());  // Manquant chez toi
+                dto.setId(p.getId());  // ✅ bien ajouté
                 dto.setTypeProduit(TypeProduit.ENCHERE);
                 dto.setPrixDepart(pe.getPrixDepart());
                 dto.setDateDebut(pe.getDateDebut());

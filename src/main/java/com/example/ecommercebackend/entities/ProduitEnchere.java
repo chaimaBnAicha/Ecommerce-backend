@@ -17,6 +17,7 @@ public class ProduitEnchere extends Produit {
     private LocalDateTime dateFin;
 
 
+
     @OneToMany(mappedBy = "produit", cascade = CascadeType.ALL)
     private List<Mise> mises;
 

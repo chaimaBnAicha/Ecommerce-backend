@@ -16,7 +16,7 @@ public class ProduitServiceImpl implements ProduitService {
 
     @Override
     public Produit ajouterProduit(ProduitDTO dto, User vendeur) {
-        // Validation
+        // Validation de base
         if (dto.getNom() == null || dto.getNom().isEmpty()) {
             throw new IllegalArgumentException("Le nom du produit est requis");
         }
@@ -26,28 +26,51 @@ public class ProduitServiceImpl implements ProduitService {
 
         Produit produit;
 
-        if (dto.getTypeProduit() == TypeProduit.CLASSIQUE) {
-            if (dto.getPrixFixe() == null || dto.getPrixFixe() <= 0) {
-                throw new IllegalArgumentException("Prix fixe invalide");
-            }
-            ProduitClassique pc = new ProduitClassique();
-            pc.setPrixFixe(dto.getPrixFixe());
-            produit = pc;
-        } else {
-            if (dto.getPrixDepart() == null || dto.getPrixDepart() <= 0) {
-                throw new IllegalArgumentException("Prix de départ invalide");
-            }
-            if (dto.getDateDebut() == null || dto.getDateFin() == null ||
-                    dto.getDateFin().isBefore(dto.getDateDebut())) {
-                throw new IllegalArgumentException("Dates d'enchère invalides");
+        switch (dto.getTypeProduit()) {
+            case CLASSIQUE -> {
+                if (dto.getPrixFixe() == null || dto.getPrixFixe() <= 0) {
+                    throw new IllegalArgumentException("Prix fixe invalide");
+                }
+                ProduitClassique pc = new ProduitClassique();
+                pc.setPrixFixe(dto.getPrixFixe());
+                produit = pc;
             }
 
-            ProduitEnchere pe = new ProduitEnchere();
-            pe.setPrixDepart(dto.getPrixDepart());
-            pe.setPrixActuel(dto.getPrixDepart());
-            pe.setDateDebut(dto.getDateDebut());
-            pe.setDateFin(dto.getDateFin());
-            produit = pe;
+            case ENCHERE -> {
+                if (dto.getPrixDepart() == null || dto.getPrixDepart() <= 0) {
+                    throw new IllegalArgumentException("Prix de départ invalide");
+                }
+                if (dto.getDateDebut() == null || dto.getDateFin() == null ||
+                        dto.getDateFin().isBefore(dto.getDateDebut())) {
+                    throw new IllegalArgumentException("Dates d'enchère invalides");
+                }
+                ProduitEnchere pe = new ProduitEnchere();
+                pe.setPrixDepart(dto.getPrixDepart());
+                pe.setPrixActuel(dto.getPrixDepart());
+                pe.setDateDebut(dto.getDateDebut());
+                pe.setDateFin(dto.getDateFin());
+                produit = pe;
+            }
+
+            case ENCHERE_VIP -> {
+                if (dto.getPrixDepart() == null || dto.getPrixDepart() <= 0 ||
+                        dto.getFraisInscription() == null || dto.getFraisInscription() <= 0) {
+                    throw new IllegalArgumentException("Prix de départ ou frais d'inscription invalides");
+                }
+                if (dto.getDateDebut() == null || dto.getDateFin() == null ||
+                        dto.getDateFin().isBefore(dto.getDateDebut())) {
+                    throw new IllegalArgumentException("Dates d'enchère invalides");
+                }
+                ProduitEnchereVIP vip = new ProduitEnchereVIP();
+                vip.setPrixDepart(dto.getPrixDepart());
+                vip.setPrixActuel(dto.getPrixDepart());
+                vip.setDateDebut(dto.getDateDebut());
+                vip.setDateFin(dto.getDateFin());
+                vip.setFraisInscription(dto.getFraisInscription());
+                produit = vip;
+            }
+
+            default -> throw new IllegalArgumentException("Type de produit non supporté");
         }
 
         produit.setNom(dto.getNom());
@@ -57,6 +80,7 @@ public class ProduitServiceImpl implements ProduitService {
 
         return produitRepository.save(produit);
     }
+
 
     @Override
     public List<Produit> getAllProduits() {

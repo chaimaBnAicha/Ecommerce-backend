@@ -1,9 +1,7 @@
 package com.example.ecommercebackend.services;
 
 import com.example.ecommercebackend.DTO.MiseDTO;
-import com.example.ecommercebackend.entities.Mise;
-import com.example.ecommercebackend.entities.ProduitEnchere;
-import com.example.ecommercebackend.entities.User;
+import com.example.ecommercebackend.entities.*;
 import com.example.ecommercebackend.repositories.MiseRepository;
 import com.example.ecommercebackend.repositories.ProduitEnchereRepository;
 import com.example.ecommercebackend.repositories.ProduitRepository;
@@ -27,22 +25,18 @@ public class MiseServiceImpl implements MiseService {
 
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
     private ProduitEnchereRepository produitEnchereRepository;
+
     @Autowired
     private EmailService emailService;
-
 
     @Override
     public Mise creerMise(MiseDTO dto) {
         if (dto.getClientId() == null && (dto.getEmailVisiteur() == null || dto.getEmailVisiteur().isEmpty())) {
             throw new RuntimeException("Les visiteurs doivent fournir un email.");
         }
-        System.out.println(">>> clientId = " + dto.getClientId());
-        System.out.println(">>> emailVisiteur = " + dto.getEmailVisiteur());
-        System.out.println(">>> anonyme = " + dto.isAnonyme());
-
-
 
         ProduitEnchere produit = (ProduitEnchere) produitRepository.findById(dto.getProduitId())
                 .orElseThrow(() -> new RuntimeException("Produit non trouvé"));
@@ -51,12 +45,25 @@ public class MiseServiceImpl implements MiseService {
             throw new RuntimeException("L'enchère est terminée.");
         }
 
+        // ⚠️ Vérification inscription VIP
+        if (produit instanceof ProduitEnchereVIP vip) {
+            if (dto.getClientId() == null) {
+                throw new RuntimeException("Vous devez être connecté pour miser sur une enchère VIP.");
+            }
+
+            User client = userRepository.findById(dto.getClientId())
+                    .orElseThrow(() -> new RuntimeException("Client non trouvé"));
+
+            if (!vip.estInscrit(client)) {
+                throw new RuntimeException("Vous devez vous inscrire et payer les frais avant de miser.");
+            }
+        }
+
         Mise mise = new Mise();
         mise.setMontant(dto.getMontant());
         mise.setDate(new Date(System.currentTimeMillis()));
         mise.setProduit(produit);
 
-        // Traitement pour client ou visiteur
         if (dto.isAnonyme()) {
             mise.setClient(null);
             mise.setEmailVisiteur(dto.getEmailVisiteur());
@@ -64,19 +71,15 @@ public class MiseServiceImpl implements MiseService {
             User client = userRepository.findById(dto.getClientId())
                     .orElseThrow(() -> new RuntimeException("Client non trouvé"));
             mise.setClient(client);
-            System.out.println(">>> Recherche client avec ID: " + dto.getClientId());
-
         }
 
-        // Mettre à jour le prix actuel du produit si la mise est supérieure
         if (dto.getMontant() > produit.getPrixActuel()) {
             produit.setPrixActuel(dto.getMontant());
         }
 
-        // Enregistrer la mise
         Mise savedMise = miseRepository.save(mise);
 
-        // 📧 ENVOI DE MAIL
+        // 📧 Email
         if (dto.isAnonyme() && dto.getEmailVisiteur() != null) {
             emailService.envoyerEmailConfirmation(
                     dto.getEmailVisiteur(),
@@ -96,13 +99,13 @@ public class MiseServiceImpl implements MiseService {
         return savedMise;
     }
 
-
     @Override
     public List<Mise> getDernieresMises(Long produitId) {
         ProduitEnchere produit = (ProduitEnchere) produitRepository.findById(produitId)
                 .orElseThrow(() -> new RuntimeException("Produit non trouvé"));
         return miseRepository.findTop3ByProduitOrderByDateDesc(produit);
     }
+
     @Override
     public void verifierFinEnchereEtNotifier(Long produitId) {
         ProduitEnchere produit = produitEnchereRepository.findById(produitId)
@@ -116,11 +119,10 @@ public class MiseServiceImpl implements MiseService {
 
         if (mises.isEmpty()) return;
 
-        Mise gagnante = mises.get(0); // plus grande mise
+        Mise gagnante = mises.get(0);
         produit.setClientGagnant(gagnante.getClient());
         produitRepository.save(produit);
 
-        // Génère le lien vers Angular
         String lienPaiement = "http://localhost:4200/paiement/" + produitId;
 
         String message = "🎉 Félicitations ! Vous avez remporté le produit : " + produit.getNom() +
@@ -157,13 +159,11 @@ public class MiseServiceImpl implements MiseService {
             dto.setProduitId(produitId);
             if (mise.getClient() != null) {
                 dto.setUtilisateurId(mise.getClient().getId());
-                dto.setUtilisateurNom(mise.getClient().getNom()); // 👈 Important pour l'affichage
+                dto.setUtilisateurNom(mise.getClient().getNom());
             } else {
                 dto.setEmailVisiteur(mise.getEmailVisiteur());
             }
             return dto;
         }).collect(Collectors.toList());
     }
-
-
 }

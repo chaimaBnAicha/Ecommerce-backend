@@ -21,6 +21,24 @@ public class ProduitDTO {
 
     private Double prixFixe;
     private Double prixDepart;
+    private Boolean vip;
+    private Double fraisInscription;
+
+    public Boolean getVip() {
+        return vip;
+    }
+
+    public void setVip(Boolean vip) {
+        this.vip = vip;
+    }
+
+    public Double getFraisInscription() {
+        return fraisInscription;
+    }
+
+    public void setFraisInscription(Double fraisInscription) {
+        this.fraisInscription = fraisInscription;
+    }
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime dateDebut;

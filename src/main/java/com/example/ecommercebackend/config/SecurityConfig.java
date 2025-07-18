@@ -46,9 +46,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/api/produits/**").permitAll()
-                        .requestMatchers("/api/mises/dernieres/**").permitAll()
+                        .requestMatchers("/api/mises/**").permitAll()
                         .requestMatchers("/api/paniers/**").permitAll()
-                        .requestMatchers("/api/notification/**").permitAll()
+                        .requestMatchers("/api/notifications/**").permitAll()
                         .requestMatchers("/api/commandes/**").permitAll()
                         .anyRequest().authenticated()
                 );
